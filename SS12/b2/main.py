@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
-DATABASE_URL = "mysql+pymysql://root:password@localhost:3306/shop_db"
+DATABASE_URL = "mysql+pymysql://root:123456@localhost:3306/shop_db"
 
 engine = create_engine(DATABASE_URL)
 
