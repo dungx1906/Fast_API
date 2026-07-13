@@ -10,4 +10,5 @@ class Restaurant(Base):
     price = Column(Float, nullable=False)
     status = Column(String, nullable=False)
 
-    
+
+Base.metadata.create_all()
