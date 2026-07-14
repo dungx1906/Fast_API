@@ -1,0 +1,43 @@
+Phần 1: Báo cáo lỗi logic nghiệp vụ
+Lỗi 1: Thêm sinh viên vào lớp học không tồn tại
+Dữ liệu test: Gửi request tạo sinh viên với class_id = 999 (id lớp không tồn tại).
+
+Kết quả thực tế: API trả về trạng thái 201 Created và thêm thành công sinh viên vào danh sách với class_id: 999.
+
+Kết quả mong đợi: Hệ thống phải từ chối (báo lỗi 404 Not Found hoặc 400 Bad Request) vì lớp học không tồn tại.
+
+Nguyên nhân lỗi: Do trong code sử dụng điều kiện if classroom and .... Khi classroom là None (không tìm thấy lớp), hệ thống bỏ qua toàn bộ các bước kiểm tra logic của lớp và trực tiếp nhảy xuống đoạn code thêm sinh viên mới.
+
+Đoạn code cần sửa:
+
+Python
+classroom = next((classroom for classroom in classrooms if classroom["id"] == student_data.class_id), None)
+# Cần kiểm tra classroom có tồn tại hay không trước khi kiểm tra các điều kiện khác.
+Lỗi 2: Thêm sinh viên vào lớp đã đầy (Sai điều kiện so sánh)
+Dữ liệu test: Lớp có id = 1 hiện tại đã có 2 sinh viên (SV001 và SV002), max_students = 2. Thực hiện request thêm sinh viên thứ 3 vào lớp này.
+
+Kết quả thực tế: API vẫn trả về 201 Created và thêm thành công (Tổng số sinh viên trong lớp thành 3, vượt quá max_students).
+
+Kết quả mong đợi: Trả về lỗi 400 Bad Request với nội dung "Lớp học đã đủ số lượng".
+
+Nguyên nhân lỗi: * Điều kiện kiểm tra hiện tại là len(current_students) > classroom["max_students"] (2 > 2 là False), nên không chặn lại. Khi muốn thêm sinh viên mới, điều kiện chặn phải là >=.
+
+Tương tự như lỗi 1, việc bọc trong if classroom and ... sẽ khiến logic này bị bỏ qua nếu truyền sai class_id.
+
+Đoạn code cần sửa:
+
+Python
+if classroom and len(current_students) > classroom["max_students"]:
+Lỗi 3: Kiểm tra trùng mã sinh viên sai phạm vi
+Dữ liệu test: Sinh viên SV001 đang ở lớp 1. Thực hiện tạo một sinh viên mới có mã là SV001 nhưng ở lớp 2 (class_id = 2).
+
+Kết quả thực tế: API trả về 201 Created và tạo thành công sinh viên trùng mã.
+
+Kết quả mong đợi: Hệ thống từ chối vì quy định là "Mã sinh viên không được trùng trong toàn hệ thống".
+
+Nguyên nhân lỗi: Điều kiện tìm kiếm sinh viên trùng lặp bị ràng buộc thêm and student["class_id"] == student_data.class_id. Hệ thống chỉ kiểm tra xem mã đó đã tồn tại trong lớp đó chưa, chứ không kiểm tra toàn hệ thống.
+
+Đoạn code cần sửa:
+
+Python
+if student["student_code"] == student_data.student_code and student["class_id"]

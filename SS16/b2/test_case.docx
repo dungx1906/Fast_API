@@ -1,0 +1,38 @@
+Phần 1: Báo cáo lỗi logic nghiệp vụ
+Lỗi 1: Tạo hồ sơ cho người dùng không tồn tại
+Dữ liệu test: Gửi request POST /users/99/profile với user_id = 99 (id không tồn tại trong danh sách users).
+
+Kết quả thực tế: Hệ thống trả về trạng thái 201 Created và tạo hồ sơ thành công cho user_id: 99.
+
+Kết quả mong đợi: Hệ thống phải báo lỗi 404 Not Found vì người dùng này hoàn toàn không tồn tại trong hệ thống.
+
+Nguyên nhân lỗi: Hệ thống hoàn toàn bỏ qua bước kiểm tra sự tồn tại của user_id trong mảng users trước khi tiến hành tạo hồ sơ.
+
+Đoạn code cần sửa: Cần bổ sung đoạn kiểm tra người dùng trước khi xử lý hồ sơ.
+
+Lỗi 2: Tạo được nhiều hồ sơ cho cùng một người dùng (Kiểm tra sai trường dữ liệu)
+Dữ liệu test: Gửi request POST /users/1/profile với một số điện thoại khác (Ví dụ: 0901000002). Hiện tại user_id = 1 đã có hồ sơ trong hệ thống (id hồ sơ là 10).
+
+Kết quả thực tế: Hệ thống trả về trạng thái 201 Created và tạo thêm một hồ sơ mới thành công cho user_id = 1.
+
+Kết quả mong đợi: Hệ thống chặn lại và báo lỗi 409 Conflict với nội dung "Người dùng đã có hồ sơ".
+
+Nguyên nhân lỗi: Ở đoạn kiểm tra hồ sơ hiện tại, hệ thống so sánh nhầm trường: if profile["id"] == user_id. Biến user_id từ đường dẫn (path) lại đem đi so sánh với id của hồ sơ (profile["id"]) thay vì so sánh với id của người dùng sở hữu hồ sơ đó (profile["user_id"]).
+
+Đoạn code cần sửa:
+
+Python
+if profile["id"] == user_id
+Lỗi 3: Cho nhiều hồ sơ sử dụng cùng số điện thoại (Ràng buộc sai phạm vi)
+Dữ liệu test: Gửi request POST /users/2/profile với số điện thoại 0901000001 (Số điện thoại này đã được user_id = 1 đăng ký).
+
+Kết quả thực tế: Hệ thống trả về trạng thái 201 Created và cho phép user_id = 2 dùng chung số điện thoại cũ.
+
+Kết quả mong đợi: Hệ thống từ chối và báo lỗi 409 Conflict vì mỗi số điện thoại chỉ được dùng duy nhất cho một hồ sơ trên toàn hệ thống.
+
+Nguyên nhân lỗi: Trong điều kiện kiểm tra trùng số điện thoại, hệ thống có ràng buộc thêm: and profile["user_id"] == user_id. Điều này khiến logic trở thành: "Chỉ báo lỗi nếu số điện thoại này trùng và thuộc về chính người dùng này".
+
+Đoạn code cần sửa:
+
+Python
+if profile["phone"] == profile_data.phone and profile["user_id"] == user_id
