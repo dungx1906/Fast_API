@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey, func
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 
-DATABASE_URL = "mysql+pymysql://root:password@localhost:3306/center_db"
+DATABASE_URL = "mysql+pymysql://root:123456@localhost:3306/center_db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

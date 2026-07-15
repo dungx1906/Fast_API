@@ -6,7 +6,7 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime, Foreign
 from sqlalchemy.orm import declarative_base, sessionmaker, Session, relationship
 
 
-DATABASE_URL = "mysql+pymysql://root:password@localhost:3306/workshop_db"
+DATABASE_URL = "mysql+pymysql://root:123456@localhost:3306/workshop_db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
