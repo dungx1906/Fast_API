@@ -1,0 +1,33 @@
+# PHẦN 1: BÁO CÁO PHÂN TÍCH VÀ THIẾT KẾ GIẢI PHÁP
+# 6.1. Phân tích dữ liệu đầu vào và đầu ra
+# Dữ liệu lấy từ request body:
+
+# student_id (Integer): Mã số của sinh viên muốn đăng ký học.
+
+# course_id (Integer): Mã số của khóa học muốn đăng ký.
+
+# Dữ liệu cần truy vấn từ cơ sở dữ liệu:
+
+# Thông tin sinh viên từ bảng Student (để kiểm tra sự tồn tại và trạng thái status).
+
+# Thông tin khóa học từ bảng Course (để kiểm tra sự tồn tại, trạng thái status, và giới hạn max_students).
+
+# Số lượng bản ghi hiện tại trong bảng Enrollment có course_id tương ứng (để đếm số học viên đã đăng ký thực tế).
+
+# Bản ghi đăng ký trùng lặp trong bảng Enrollment dựa trên cặp (student_id, course_id).
+
+# Điều kiện trả về mã lỗi 404 (Not Found):
+
+# Khi student_id gửi lên không tìm thấy sinh viên nào tương ứng trong hệ thống.
+
+# Khi course_id gửi lên không tìm thấy khóa học nào tương ứng trong hệ thống.
+
+# Điều kiện trả về mã lỗi 400 (Bad Request):
+# Sinh viên được tìm thấy nhưng có trạng thái là INACTIVE.
+# Khóa học được tìm thấy nhưng có trạng thái là CLOSED.
+# Sinh viên đã đăng ký khóa học này từ trước (trùng lặp bản ghi đăng ký).
+# Khóa học đã đủ số lượng học viên tối đa (Số lượng đăng ký hiện tại >= max_students).
+
+# Khi nào được phép tạo Enrollment:
+
+# Bản ghi Enrollment mới chỉ được phép tạo và lưu xuống cơ sở dữ liệu khi vượt qua tất cả 6 bước validate (kiểm tra điều kiện) nêu trên mà không vi phạm bất kỳ lỗi 404 hay 400 nào.

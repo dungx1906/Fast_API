@@ -1,0 +1,47 @@
+# PHẦN 1: THIẾT KẾ KIẾN TRÚC
+# 7.1. Phân tích nhu cầu
+# Khách hàng đang gặp vấn đề gì? Doanh nghiệp/trung tâm đang quản lý việc đăng ký workshop thủ công (hoặc qua file phẳng), dẫn đến các lỗi: sinh viên đăng ký trùng, workshop nhận quá số lượng giới hạn (maximum_participants), cho phép đăng ký vào các workshop đã đóng/đã hủy, và khó khăn trong việc tra cứu hai chiều giữa sinh viên và workshop.
+
+# Người dùng chính của hệ thống là ai?
+
+# Sinh viên: Người thực hiện đăng ký, xem lịch trình workshop cá nhân hoặc hủy đăng ký.
+
+# Quản trị viên (Admin/Nhân viên đào tạo): Người tạo lập sinh viên, quản lý vận hành workshop (đóng, mở, hủy) và kiểm tra danh sách lớp học.
+
+# Hệ thống cần giải quyết những chức năng nào?
+# Quản lý vòng đời của Sinh viên và Workshop; xử lý luồng đăng ký trực tuyến với các điều kiện ràng buộc chặt chẽ; cho phép hủy đăng ký và kết xuất danh sách đối ứng hai chiều.
+
+# Chức năng quan trọng nhất là gì?
+# Chức năng Đăng ký workshop (POST /registrations) đi kèm hệ thống kiểm tra logic (Validation): Chặn trùng, chặn quá tải, chặn sai trạng thái thực thể để bảo toàn tính toàn vẹn của dữ liệu.
+
+# Quyết định thiết kế hệ thống (Quy định nghiệp vụ):
+# Trạng thái Workshop: UPCOMING (Sắp diễn ra), ONGOING (Đang diễn ra - Không cho đăng ký thêm), CLOSED (Đã kết thúc), CANCELLED (Bị hủy).
+
+# Trạng thái Sinh viên: ACTIVE (Đang hoạt động), INACTIVE (Đã nghỉ học/Khóa tài khoản). Không cho phép sinh viên INACTIVE đăng ký.
+
+# Khi hủy đăng ký: Thay đổi trạng thái bản ghi Registration sang CANCELLED (Soft Delete) chứ không xóa vật lý để giữ lại lịch sử log phục vụ thống kê.
+
+# Duy nhất: student_code và email của Sinh viên bắt buộc phải cấu hình unique=True.
+# 7.2. Thiết kế cơ sở dữ liệu
+# Hệ thống sử dụng mô hình quan hệ thông qua bảng trung gian chứa dữ liệu thuộc tính (Association Object):
+
+# Bảng students (Sinh viên)
+
+# Khóa chính: id (Integer)
+
+# Thuộc tính khác: student_code (Unique), full_name, email (Unique), status
+
+# Bảng workshops (Hội thảo)
+
+# Khóa chính: id (Integer)
+
+# Thuộc tính khác: title, description, maximum_participants, status, start_time
+
+# Bảng registrations (Bảng trung gian phân công đăng ký)
+
+# Khóa chính: id (Integer)
+
+# Khóa ngoại: student_id (Trỏ tới students.id), workshop_id (Trỏ tới workshops.id)
+
+# Thuộc tính liên kết: registered_at, status (CONFIRMED hoặc CANCELLED)
+# Loại quan hệ: Quan hệ Nhiều - Nhiều ($N-N$) giữa Student và Workshop được phân rã thành hai quan hệ Một - Nhiều ($1-N$) trỏ vào bảng con Registration.
