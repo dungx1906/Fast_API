@@ -11,4 +11,4 @@ class Restaurant(Base):
     status = Column(String, nullable=False)
 
 
-Base.metadata.create_all()
+Base.metadata.create_all(en)
